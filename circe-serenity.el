@@ -62,11 +62,6 @@
 (circe-serenity--define-formatter 'circe-serenity-say-formatter 'circe-format-say)
 (circe-serenity--define-formatter 'circe-serenity-say-formatter 'circe-format-self-say)
 
-(defun circe-serenity-self-say-formatter (&rest keywords)
-  (propertize (format (format "%%%ds   %%s" circe-serenity-longest-nick)
-                      ">" (plist-get keywords :body))
-              'wrap-prefix (circe-serenity--fill-string)))
-
 (defun circe-serenity-action-formatter (&rest keywords)
   (propertize
    (lui-format
