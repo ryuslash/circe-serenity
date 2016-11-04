@@ -26,9 +26,8 @@
 ;; care of both `fill-prefix' and `wrap-prefix' so it should be usable
 ;; with and without `lui-fill-type'.
 
-;; The name circe-serenity was chosen because it's pronounced somewhat
-;; similarly to cermin, which is an amalgamation of circe
-;; minimalistic.
+;; The name circe-serenity was chosen because I think the buffers feel
+;; cleaner and more serene with this setup.
 
 ;;; Code:
 
