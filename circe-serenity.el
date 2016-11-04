@@ -187,6 +187,20 @@ key.  A key :intro is added to the plist and then passed on to
    'wrap-prefix (circe-serenity--fill-string)))
 (circe-serenity--define-formatter 'circe-serenity-server-topic-formatter 'circe-format-server-topic)
 
+(defun circe-serenity-server-nick-regain-formatter (&rest keywords)
+  "Format a message of user regaining their nick.
+KEYWORDS should be a plist with at least a :new-nick and
+:old-nick key.  A key :intro is added to the plist and then
+passed on to `lui-format'."
+  (propertize
+   (lui-format
+    (format "{intro:%ds}   {old-nick} is known again as {new-nick}"
+            circe-serenity-longest-nick)
+    (plist-put keywords :intro "***"))
+   'wrap-prefix (circe-serenity--fill-string)))
+(circe-serenity--define-formatter 'circe-serenity-server-nick-regain-formatter
+                    'circe-format-server-nick-regain)
+
 ;;;###autoload
 (defun enable-circe-serenity ()
   "Enable Serenity for Circe."
