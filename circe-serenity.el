@@ -31,6 +31,8 @@
 
 ;;; Code:
 
+(require 'lui-format)
+
 (defvar circe-serenity-longest-nick 0
   "The longest known nick.")
 (make-variable-buffer-local 'circe-serenity-longest-nick)
