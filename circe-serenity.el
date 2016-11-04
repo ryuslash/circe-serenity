@@ -35,30 +35,12 @@
   "The longest known nick.")
 (make-variable-buffer-local 'circe-serenity-longest-nick)
 
-(defvar circe-serenity-original-format-say nil
-  "The original value of `circe-format-say'.")
-(defvar circe-serenity-original-format-self-say nil
-  "The original value of `circe-format-self-say'.")
-(defvar circe-serenity-original-format-action nil
-  "The original value of `circe-format-action'.")
-(defvar circe-serenity-original-format-self-action nil
-  "The original value of `circe-format-self-action'.")
-(defvar circe-serenity-original-format-server-message nil
-  "The original value of `circe-format-server-message'.")
-(defvar circe-serenity-original-format-server-join-in-channel nil
-  "The original value of `circe-format-server-join-in-channel'.")
-(defvar circe-serenity-original-format-server-join nil
-  "The original value of `circe-format-server-join'.")
-(defvar circe-serenity-original-format-server-quit nil
-  "The original value of `circe-format-server-quit'.")
-(defvar circe-serenity-original-format-server-quit-channel nil
-  "The original value of `circe-format-server-quit-channel'.")
-(defvar circe-serenity-original-format-server-part nil
-  "The original value of `circe-format-server-part'.")
-(defvar circe-serenity-original-format-server-nick-change nil
-  "The original value of `circe-format-server-nick-change'.")
-(defvar circe-serenity-original-format-server-topic nil
-  "The original vlaue of `circe-format-server-topic'.")
+(defvar circe-serenity--formatters-alist nil
+  "Alist of which formatter to use for which circe format.")
+
+(defun circe-serenity--define-formatter (formatter format)
+  "Define that FORMATTER should be used for FORMAT."
+  (setf (alist-get format circe-serenity--formatters-alist) formatter))
 
 (defun circe-serenity--fill-string ()
   (make-string (+ circe-serenity-longest-nick 3) ?\s))
@@ -77,6 +59,8 @@
    (lui-format (format "{nick:%ds}   {body}" circe-serenity-longest-nick)
                keywords)
    'wrap-prefix (circe-serenity--fill-string)))
+(circe-serenity--define-formatter 'circe-serenity-say-formatter 'circe-format-say)
+(circe-serenity--define-formatter 'circe-serenity-say-formatter 'circe-format-self-say)
 
 (defun circe-serenity-self-say-formatter (&rest keywords)
   (propertize (format (format "%%%ds   %%s" circe-serenity-longest-nick)
@@ -89,6 +73,7 @@
     (format "{intro:%ds}   {nick} {body}" circe-serenity-longest-nick)
     (plist-put keywords :intro "*"))
    'wrap-prefix (circe-serenity--fill-string)))
+(circe-serenity--define-formatter 'circe-serenity-action-formatter 'circe-format-action)
 
 (defun circe-serenity-server-message-formatter (&rest keywords)
   (propertize
@@ -96,6 +81,7 @@
     (format "{intro:%ds}   {body}" circe-serenity-longest-nick)
     (plist-put keywords :intro "***"))
    'wrap-prefix (circe-serenity--fill-string)))
+(circe-serenity--define-formatter 'circe-serenity-server-message-formatter 'circe-format-server-message)
 
 (defun circe-serenity-server-join-in-channel-formatter (&rest keywords)
   (propertize
@@ -104,6 +90,8 @@
             circe-serenity-longest-nick)
     (plist-put keywords :intro ">>>"))
    'wrap-prefix (circe-serenity--fill-string)))
+(circe-serenity--define-formatter 'circe-serenity-server-join-in-channel-formatter
+                    'circe-format-server-join-in-channel)
 
 (defun circe-serenity-server-join-formatter (&rest keywords)
   (propertize
@@ -112,6 +100,7 @@
             circe-serenity-longest-nick)
     (plist-put keywords :intro ">>>"))
    'wrap-prefix (circe-serenity--fill-string)))
+(circe-serenity--define-formatter 'circe-serenity-server-join-formatter 'circe-format-server-join)
 
 (defun circe-serenity-server-quit-formatter (&rest keywords)
   (propertize
@@ -120,6 +109,7 @@
             circe-serenity-longest-nick)
     (plist-put keywords :intro "<<<"))
    'wrap-prefix (circe-serenity--fill-string)))
+(circe-serenity--define-formatter 'circe-serenity-server-quit-formatter 'circe-format-server-quit)
 
 (defun circe-serenity-server-quit-channel-formatter (&rest keywords)
   (propertize
@@ -128,6 +118,8 @@
             circe-serenity-longest-nick)
     (plist-put keywords :intro "<<<"))
    'wrap-prefix (circe-serenity--fill-string)))
+(circe-serenity--define-formatter 'circe-serenity-server-quit-channel-formatter
+                    'circe-format-server-quit-channel)
 
 (defun circe-serenity-server-part-formatter (&rest keywords)
   (propertize
@@ -136,6 +128,7 @@
             circe-serenity-longest-nick)
     (plist-put keywords :intro "***"))
    'wrap-prefix (circe-serenity--fill-string)))
+(circe-serenity--define-formatter 'circe-serenity-server-part-formatter 'circe-format-server-part)
 
 (defun circe-serenity-server-nick-change-formatter (&rest keywords)
   (propertize
@@ -144,6 +137,8 @@
             circe-serenity-longest-nick)
     (plist-put keywords :intro "***"))
    'wrap-prefix (circe-serenity--fill-string)))
+(circe-serenity--define-formatter 'circe-serenity-server-nick-change-formatter
+                    'circe-format-server-nick-change)
 
 (defun circe-serenity-server-topic-formatter (&rest keywords)
   (propertize
@@ -152,100 +147,23 @@
             circe-serenity-longest-nick)
     (plist-put keywords :intro "***"))
    'wrap-prefix (circe-serenity--fill-string)))
+(circe-serenity--define-formatter 'circe-serenity-server-topic-formatter 'circe-format-server-topic)
 
 ;;;###autoload
 (defun enable-circe-serenity ()
   (interactive)
-  (if (null circe-serenity-original-format-say)
-      (setq circe-serenity-original-format-say
-            circe-format-say))
-  (setq circe-format-say #'circe-serenity-say-formatter)
-
-  (if (null circe-serenity-original-format-self-say)
-      (setq circe-serenity-original-format-self-say
-            circe-format-self-say))
-  (setq circe-format-self-say #'circe-serenity-say-formatter)
-
-  (if (null circe-serenity-original-format-action)
-      (setq circe-serenity-original-format-action
-            circe-format-action))
-  (setq circe-format-action #'circe-serenity-action-formatter)
-
-  (if (null circe-serenity-original-format-self-action)
-      (setq circe-serenity-original-format-self-action
-            circe-format-self-action))
-  (setq circe-format-self-action #'circe-serenity-action-formatter)
-
-  (if (null circe-serenity-original-format-server-message)
-      (setq circe-serenity-original-format-server-message
-            circe-format-server-message))
-  (setq circe-format-server-message #'circe-serenity-server-message-formatter)
-
-  (if (null circe-serenity-original-format-server-join-in-channel)
-      (setq circe-serenity-original-format-server-join-in-channel
-            circe-format-server-join-in-channel))
-  (setq circe-format-server-join-in-channel
-        #'circe-serenity-server-join-in-channel-formatter)
-
-  (if (null circe-serenity-original-format-server-join)
-      (setq circe-serenity-original-format-server-join
-            circe-format-server-join))
-  (setq circe-format-server-join #'circe-serenity-server-join-formatter)
-
-  (if (null circe-serenity-original-format-server-quit)
-      (setq circe-serenity-original-format-server-quit
-            circe-format-server-quit))
-  (setq circe-format-server-quit #'circe-serenity-server-quit-formatter)
-
-  (if (null circe-serenity-original-format-server-quit-channel)
-      (setq circe-serenity-original-format-server-quit-channel
-            circe-format-server-quit-channel))
-  (setq circe-format-server-quit-channel
-        #'circe-serenity-server-quit-channel-formatter)
-
-  (if (null circe-serenity-original-format-server-part)
-      (setq circe-serenity-original-format-server-part
-            circe-format-server-part))
-  (setq circe-format-server-part #'circe-serenity-server-part-formatter)
-
-  (if (null circe-serenity-original-format-server-nick-change)
-      (setq circe-serenity-original-format-server-nick-change
-            circe-format-server-nick-change))
-  (setq circe-format-server-nick-change
-        #'circe-serenity-server-nick-change-formatter)
-
-  (if (null circe-serenity-original-format-server-topic)
-      (setq circe-serenity-original-format-server-topic
-            circe-format-server-topic))
-  (setq circe-format-server-topic
-        #'circe-serenity-server-topic-formatter))
+  (dolist (format-pair circe-serenity--formatters-alist)
+    (cl-destructuring-bind (format . formatter) format-pair
+      (if (null (get format 'circe-serenity-original))
+          (put format 'circe-serenity-original (symbol-value format)))
+      (set format formatter))))
 
 (defun disable-circe-serenity ()
   (interactive)
-  (setq circe-format-say circe-serenity-original-format-say
-        circe-serenity-original-format-say nil
-        circe-format-self-say circe-serenity-original-format-self-say
-        circe-serenity-original-format-self-say nil
-        circe-format-action circe-serenity-original-format-action
-        circe-serenity-original-format-action nil
-        circe-format-self-action circe-serenity-original-format-self-action
-        circe-serenity-original-format-self-action nil
-        circe-format-server-message circe-serenity-original-format-server-message
-        circe-serenity-original-format-server-message nil
-        circe-format-server-join-in-channel circe-serenity-original-format-server-join-in-channel
-        circe-serenity-original-format-server-join-in-channel nil
-        circe-format-server-join circe-serenity-original-format-server-join
-        circe-serenity-original-format-server-join nil
-        circe-format-server-quit circe-serenity-original-format-server-quit
-        circe-serenity-original-format-server-quit nil
-        circe-format-server-quit-channel circe-serenity-original-format-server-quit-channel
-        circe-serenity-original-format-server-quit-channel nil
-        circe-format-server-part circe-serenity-original-format-server-part
-        circe-serenity-original-format-server-part nil
-        circe-format-server-nick-change circe-serenity-original-format-server-nick-change
-        circe-serenity-original-format-server-nick-change nil
-        circe-format-server-topic circe-serenity-original-format-server-topic
-        circe-serenity-original-format-topic nil))
+  (dolist (format-pair circe-serenity--formatters-alist)
+    (cl-destructuring-bind (format . _) format-pair
+      (set format (get format 'circe-serenity-original))
+      (put format 'circe-serenity-original nil))))
 
 (provide 'circe-serenity)
 ;;; circe-serenity.el ends here
