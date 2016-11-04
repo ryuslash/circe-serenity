@@ -197,7 +197,7 @@ key.  A key :intro is added to the plist and then passed on to
   "Disable Serenity for Circe."
   (interactive)
   (dolist (format-pair circe-serenity--formatters-alist)
-    (cl-destructuring-bind (format . _) format-pair
+    (let ((format (car format-pair)))
       (set format (get format 'circe-serenity-original))
       (put format 'circe-serenity-original nil))))
 
