@@ -83,6 +83,7 @@ A key :intro is added to the plist and then passed on to
     (plist-put keywords :intro "*"))
    'wrap-prefix (circe-serenity--fill-string)))
 (circe-serenity--define-formatter 'circe-serenity-action-formatter 'circe-format-action)
+(circe-serenity--define-formatter 'circe-serenity-action-formatter 'circe-format-self-action)
 
 (defun circe-serenity-server-message-formatter (&rest keywords)
   "Format a message from the server.
