@@ -1,0 +1,3 @@
+* Circe Serenity
+
+  This is my idea of a more serene configuration for [[https://github.com/jorgenschaefer/circe][Circe]].
